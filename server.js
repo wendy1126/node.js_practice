@@ -143,3 +143,16 @@ app.get("/edit/:id", function (요청, 응답) {
     }
   );
 });
+
+//서버로 PUT 요청 들어오면 게시물 수정 처리하기
+app.put("/edit", function (요청, 응답) {
+  //폼에 담긴 제목 데이터, 날짜 데이터를 가지고, db.collection에 업데이트함, parseInt(요청.body.id)=요청.body.input의 name이 id 인 것
+  db.collection("post").updateOne(
+    { _id: parseInt(요청.body.id) },
+    { $set: { 제목: 요청.body.title, 날짜: 요청.body.date } },
+    function (에러, 결과) {
+      console.log("수정완료");
+      응답.redirect("/list");
+    }
+  );
+});
