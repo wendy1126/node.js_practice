@@ -315,3 +315,16 @@ app.post("/register", function (요청, 응답) {
     }
   );
 });
+
+//route들 파일로 관리하기 예제
+// app.get("/shop/shirts", function (요청, 응답) {
+//   응답.send("셔츠 파는 페이지입니다.");
+// });
+
+// app.get("/shop/pants", function (요청, 응답) {
+//   응답.send("바지 파는 페이지입니다.");
+// });
+
+//app.use(미들웨어) : 요청과 응답사이에 실행되는 코드
+app.use("/shop", require("./routes/shop.js")); //shop.js파일을 여기에 첨부하겠음
+app.use("/board/sub", require("./routes/board.js")); //shop.js파일을 여기에 첨부하겠음
