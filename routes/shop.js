@@ -9,13 +9,16 @@ function 로그인했니(요청, 응답, next) {
   }
 }
 
+//여기있는 모든 URL에 적용할 미들웨어
+router.user(로그인했니);
+
 //app.get(~~)대신 router.get(~~)으로 작성
-//로그인 한 사람만 방문가능하게 미들웨어 적용하고 싶으면, 2번째에 함수 적으면됨
-router.get("/shirts", 로그인했니, function (요청, 응답) {
+//로그인 한 사람만 방문가능하게 '개별 미들웨어' 적용하고 싶으면, 2번째에 함수 적으면됨
+router.get("/shirts", function (요청, 응답) {
   응답.send("셔츠 파는 페이지입니다.");
 });
 
-router.get("/pants", 로그인했니, function (요청, 응답) {
+router.get("/pants", function (요청, 응답) {
   응답.send("바지 파는 페이지입니다.");
 });
 
