@@ -5,6 +5,8 @@ app.use(bodyParser.urlencoded({ extended: true })); //mongoDB 접속하기 위�
 const MongoClient = require("mongodb").MongoClient; //mongoDB 접속하기 위해 작성2
 app.set("view engin", "ejs"); //ejs 사용하기 위해 작성
 
+app.use("/public", express.static("public")); //내가 작성한 css 파일 첨부하기 위해 작성
+
 var db;
 //mongoDB connect에서 복붙 (아이디,비밀번호,프로젝트이름 확인 필수:비번에 특수문자는 변환필요)
 MongoClient.connect(
@@ -40,11 +42,13 @@ MongoClient.connect(
 
 //html 파일 보내기
 app.get("/", function (요청req, 응답res) {
-  응답res.sendFile(__dirname + "/index.html");
+  // 응답res.sendFile(__dirname + "/index.ejs"); html 파일 불러오기
+  응답res.render("index.ejs"); //ejs 파일 랜더링하기
 });
 
 app.get("/write", function (요청req, 응답res) {
-  응답res.sendFile(__dirname + "/write.html");
+  // 응답res.sendFile(__dirname + "/write.ejs"); html 파일 불러오기
+  응답res.render("write.ejs"); //ejs 파일 랜더링하기
 });
 
 //어떤사람이 /add경로로 POST 요청하면 send 해주세요
