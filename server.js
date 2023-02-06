@@ -2,8 +2,8 @@ const express = require("express");
 const app = express();
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true })); //mongoDB 접속하기 위해 작성1
-
 const MongoClient = require("mongodb").MongoClient; //mongoDB 접속하기 위해 작성2
+app.set("view engin", "ejs"); //ejs 사용하기 위해 작성
 
 var db;
 //mongoDB connect에서 복붙 (아이디,비밀번호,프로젝트이름 확인 필수:비번에 특수문자는 변환필요)
@@ -68,4 +68,10 @@ app.post("/add", function (요청req, 응답res) {
       console.log("저장완료");
     }
   );
+});
+
+// /list로 GET요청으로 접속하면
+// 실제 DB에 저장된 데이터들로 예쁘게 꾸며진 HTML을 보여줌
+app.get("/list", function (요청, 응답) {
+  응답.render("list.ejs");
 });
