@@ -15,12 +15,12 @@ MongoClient.connect(
     if (에러) return console.log(에러);
     db = client.db("todoapp");
 
-    db.collection("post").insertOne(
-      { 이름: "John", _id: 100 },
-      function (에러, 결과) {
-        console.log("저장완료");
-      }
-    );
+    // db.collection("post").insertOne(
+    //   { 이름: "John", _id: 100 },
+    //   function (에러, 결과) {
+    //     console.log("저장완료");
+    //   }
+    // );
 
     app.listen(8080, function () {
       console.log("listening on 8080");
@@ -103,4 +103,26 @@ app.get("/list", function (요청, 응답) {
       console.log(결과);
       응답.render("list.ejs", { posts: 결과 });
     }); //모든 데이터 가져옴
+});
+
+// /delete경로로 DELETE요청 처리하는 코드
+app.delete("/delete", function (요청, 응답) {
+  console.log(요청.body);
+  요청.body._id = parseInt(요청.body._id); //문자로 변환된 것을 숫자로 변환시킴
+  //요청.body에 담겨온 게시물번호를 가진 글을 db에서 찾아서 삭제해주세요
+  db.collection("post").deleteOne(요청.body, function (에러, 결과) {
+    console.log("삭제완료"); //터미널창에 '삭제완료' 출력
+    응답.status(200).send({ message: "성공했습니다" });
+  });
+});
+
+// /detail/url파라미터 로 GET 요청하면 detail.ejs 보여줌
+app.get("/detail/:id", function (요청, 응답) {
+  db.collection("post").findOne(
+    { _id: parseInt(요청.params.id) },
+    function (에러, 결과) {
+      console.log(결과);
+      응답.render("detail.ejs", { data: 결과 });
+    }
+  );
 });
