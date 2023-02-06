@@ -122,21 +122,31 @@ app.get("/list", function (요청, 응답) {
     }); //모든 데이터 가져옴
 });
 
-//서버에서 query string 꺼내는 법
-app.get("/search", (요청, 응답) => {
-  console.log(요청.query.value); //query string이 담겨있음. value는 검색한 단어임
-  db.collection("post")
-    .find({ 제목: 요청.query.value })
-    .toArray((에러, 결과) => {
-      console.log(결과);
-      응답.render("search.ejs", { posts: 결과 });
-    });
-});
+//서버에서 query string 꺼내는 법(1)
+// app.get("/search", (요청, 응답) => {
+//   console.log(요청.query.value); //query string이 담겨있음. value는 검색한 단어임
+//   db.collection("post")
+//     .find({ 제목: 요청.query.value })
+//     .toArray((에러, 결과) => {
+//       console.log(결과);
+//       응답.render("search.ejs", { posts: 결과 });
+//     });
+// });
 
 // 일부 일치하면 검색 가능하도록, '정규식(문자검사하는식)' 쓰면 되지만 임시방편임. find(/정규식/)은 시간이 오래걸리기도함
 // 정규식 대신 'indexing' 을 사용. 미리 정렬(indexing)
 // index : 기존 collection을 정렬해놓은 사본(mongoDB->Collections-indexes->CREATE INDEX)
 // 미리 indexing(정렬)해두면 BD는 알아서 Binary Search 해줌
+
+//서버에서 query string 꺼내는 법(2)
+app.get("/search", (요청, 응답) => {
+  db.collection("post")
+    .find({ $text: { $search: 요청.query.value } })
+    .toArray((에러, 결과) => {
+      console.log(결과);
+      응답.render("search.ejs", { posts: 결과 });
+    });
+});
 
 // /delete경로로 DELETE요청 처리하는 코드
 app.delete("/delete", function (요청, 응답) {

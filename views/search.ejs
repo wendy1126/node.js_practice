@@ -70,11 +70,20 @@
                 })
             })
 
-            //검색 스크립트
+            //검색 스크립트 방법1
             $('#search').click(function () {
                 var 입력한값 = $('#search-input').val() //input에 유저가 입력한 값 추출
                 window.location.replace('/search?value=' + 입력한값) //url 변경하는 행위(실은 GET요청이랑 같음, 버튼누르면 /search로 이동=GET요청함)
             })
+
+            //(참고)검색 스크립트 방법2
+            // var 자료 = {이름 : '값', 이름2 : '값2'}
+            // $.param(자료) //오브젝트 자료형을 query string으로 만듦
+
+            //(참고)검색 스크립트 방법3
+            // $(폼태그).serialize()
+
+
         </script>
 
 
