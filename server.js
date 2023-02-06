@@ -139,9 +139,35 @@ app.get("/list", function (요청, 응답) {
 // 미리 indexing(정렬)해두면 BD는 알아서 Binary Search 해줌
 
 //서버에서 query string 꺼내는 법(2)
+// app.get("/search", (요청, 응답) => {
+//   // new Date();
+//   db.collection("post")
+//     .find({ $text: { $search: 요청.query.value } })
+//     .toArray((에러, 결과) => {
+//       console.log(결과);
+//       응답.render("search.ejs", { posts: 결과 });
+//     });
+// });
+
+//서버에서 query string 꺼내는 법(3)
 app.get("/search", (요청, 응답) => {
+  var 검색조건 = [
+    {
+      $search: {
+        index: "titleSearch",
+        text: {
+          query: 요청.query.value,
+          path: "제목", // 제목날짜 둘다 찾고 싶으면 ['제목', '날짜']
+        },
+      },
+    },
+    { $project: { 제목: 1, _id: 0, score: { $meta: "searchScore" } } }, //1은 가져오고, 0은 안가져온다는 뜻, score는 검색어와 얼마나 관련있는지 점수로 매김
+    // { $sort: { _id: 1 } }, //id를 오름차순으로 정렬
+    // { $limit: 10 }, //검색 갯수 제한걸기
+  ];
+  console.log(요청.query);
   db.collection("post")
-    .find({ $text: { $search: 요청.query.value } })
+    .aggregate(검색조건)
     .toArray((에러, 결과) => {
       console.log(결과);
       응답.render("search.ejs", { posts: 결과 });
@@ -270,4 +296,14 @@ passport.deserializeUser(function (아이디, done) {
   db.collection("login").findOne({ id: 아이디 }, function (에러, 결과) {
     done(null, 결과);
   });
+});
+
+//회원가입 만들기
+app.post("/register", function (요청, 응답) {
+  db.collection("login").insertOne(
+    { id: 요청.body.id, pw: 요청.body.pw },
+    function (에러, 결과) {
+      응답.redirect("/");
+    }
+  );
 });
