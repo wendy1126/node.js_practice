@@ -4,6 +4,8 @@ const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({ extended: true })); //mongoDB 접속하기 위해 작성1
 const MongoClient = require("mongodb").MongoClient; //mongoDB 접속하기 위해 작성2
 app.set("view engin", "ejs"); //ejs 사용하기 위해 작성
+const methodOverride = require("method-override"); //put과 delete 요청할 수 있는 라이브러리 method-override 쓰기 위해 작성
+app.use(methodOverride("_method")); //put과 delete 요청할 수 있는 라이브러리 method-override 쓰기 위해 작성
 
 app.use("/public", express.static("public")); //내가 작성한 css 파일 첨부하기 위해 작성
 
@@ -127,6 +129,17 @@ app.get("/detail/:id", function (요청, 응답) {
     function (에러, 결과) {
       console.log(결과);
       응답.render("detail.ejs", { data: 결과 });
+    }
+  );
+});
+
+//edit 페이지 만들기
+app.get("/edit/:id", function (요청, 응답) {
+  db.collection("post").findOne(
+    { _id: parseInt(요청.params.id) },
+    function (에러, 결과) {
+      console.log(결과);
+      응답.render("edit.ejs", { post: 결과 });
     }
   );
 });
