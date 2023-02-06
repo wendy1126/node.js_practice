@@ -73,5 +73,11 @@ app.post("/add", function (요청req, 응답res) {
 // /list로 GET요청으로 접속하면
 // 실제 DB에 저장된 데이터들로 예쁘게 꾸며진 HTML을 보여줌
 app.get("/list", function (요청, 응답) {
-  응답.render("list.ejs");
+  // DB에 저장된 post라는 collection안의 모든(or ID가 뭐인, 제목이 뭐인) 데이터를 꺼내주세요
+  db.collection("post")
+    .find()
+    .toArray(function (에러, 결과) {
+      console.log(결과);
+      응답.render("list.ejs", { posts: 결과 });
+    }); //모든 데이터 가져옴
 });
