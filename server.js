@@ -10,6 +10,20 @@ const passport = require("passport"); //session방식 로그인 기능 구현하
 const LocalStrategy = require("passport-local").Strategy; //session방식 로그인 기능 구현하기 위한 라이브러리2
 const session = require("express-session"); //session방식 로그인 기능 구현하기 위한 라이브러리3
 require("dotenv").config(); //환경변수 사용을 위한 라이브러리
+let multer = require("multer"); //파일전송한 것을 저장/분석 등 쉽게 하기 위한 라이브러리
+
+var storage = multer.diskStorage({
+  //업로드한 이미지를 어디로 보낼지 폴더 경로 정의하는 부분
+  destination: function (req, file, cb) {
+    cb(null, "./public/image");
+  },
+  filename: function (req, file, cb) {
+    //저장한 이미지의 파일명 설정하는 부분
+    cb(null, file.originalname); //originalname = 기존 파일 이름으로 저장
+  },
+});
+
+var upload = multer({ storage: storage }); //post 요청할 때 upload 소환해주면 됨(미들웨어)
 
 //app.user(미들웨어) : 웹서버는 요청-응답해주는 머신이기때문에 중간에 실행되는 코드를 미들웨어라고 함
 app.use(
@@ -328,3 +342,14 @@ app.post("/register", function (요청, 응답) {
 //app.use(미들웨어) : 요청과 응답사이에 실행되는 코드
 app.use("/shop", require("./routes/shop.js")); //shop.js파일을 여기에 첨부하겠음
 app.use("/board/sub", require("./routes/board.js")); //board.js파일을 여기에 첨부하겠음
+
+//upload로 접속시 페이지
+app.get("/upload", function (요청, 응답) {
+  응답.render("upload.ejs");
+});
+
+//업로드경로도 post 요청하면 upload함수 실행 후 응답(업로드한 이미지를 image폴더에 저장)
+//upload.single('input의 name속성이름)
+app.post("/upload", upload.single("profile"), function (요청, 응답) {
+  응답.send("업로드완료");
+});
