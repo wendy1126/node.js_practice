@@ -19,8 +19,19 @@ var storage = multer.diskStorage({
   },
   filename: function (req, file, cb) {
     //저장한 이미지의 파일명 설정하는 부분
-    cb(null, file.originalname); //originalname = 기존 파일 이름으로 저장
+    cb(null, file.originalname); //originalname = 기존 파일 이름으로 저장, 추가로 '+ "날짜" + new Date()' 적을 수 있음
   },
+  // filters: function (req, file, cb) {
+  //   //파일 업로드 전 제재 걸 수 있음(파일 형식:확장자 거르기)
+  //   var ext = path.extname(file.originalname);
+  //   if (ext !== ".png" && ext !== ".jpg" && ext !== ".jpeg") {
+  //     return callback(new Error("PNG, JPG만 업로드하세요"));
+  //   }
+  //   callback(null, true);
+  // },
+  // limits: {
+  //   fileSize: 1024 * 1024, //파일 사이즈 제한
+  // },
 });
 
 var upload = multer({ storage: storage }); //post 요청할 때 upload 소환해주면 됨(미들웨어)
@@ -350,6 +361,12 @@ app.get("/upload", function (요청, 응답) {
 
 //업로드경로도 post 요청하면 upload함수 실행 후 응답(업로드한 이미지를 image폴더에 저장)
 //upload.single('input의 name속성이름)
+//파일을 여러개 업로드 하고 싶으면 upload.single 아니라 upload.array('name 이름', 받을 최대 갯수)
 app.post("/upload", upload.single("profile"), function (요청, 응답) {
   응답.send("업로드완료");
+});
+
+//업로드한 이미지 보여주기
+app.get("/image/:imageName", function (요청, 응답) {
+  응답.sendFile(__dirname + "/public/image/" + 요청.params.imageName); //__dirname=현재파일경로(server.js)
 });
