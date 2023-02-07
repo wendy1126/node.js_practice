@@ -463,9 +463,11 @@ app.get("/socket", function (요청, 응답) {
 //웹소켓에 접속시 내부 코드 실행하도록 함
 io.on("connection", function (socket) {
   console.log("유저접속됨");
-  //누가 'user-send'이름으로 메세지 보내면, 내부 코드 실행하도록 함
+  //유저가 서버에게 'user-send'이름으로 메세지 보내면(서버가 수신하면), 내부 코드 실행하도록 함
   socket.on("user-send", function (data) {
     //data는 유저가 보낸 메세지
     console.log(data);
+    //서버가 유저에게 메세지 전송하는 방법
+    io.emit("broadcast", data); //io.emit()특징은 모든 유저에게 메세지 보내줌(접속자간 단체 채팅방에 유용)
   });
 });

@@ -21,13 +21,22 @@
 
     <%- include('nav.html') %>
     <h4 class="text-center">채팅방</h4>
-    <input id="input1"> <button id="send">서버에 메세지 보내기</button>
+    <div id="content"></div>
+    <input id="input1">
+    <button id="send">서버에 메세지 보내기</button>
 
     <script>
         var socket = io(); //웹소켓에 접속가능한 코드
         $('#send').click(function(){//유저가 서버에게 웹소켓으로 실시간 메세지 보내는 법
             socket.emit('user-send', $('#input1').val()) //socket.emit('전송할이름','메세지')
-        })
+        });
+
+        //서버가 유저에게 보낸 메세지 수신하는 방법
+        socket.on("broadcast", function (data) {
+            console.log(data);
+            $('#content').append('<div>' + data + '</div>')
+        });
+
     </script>
 
 
