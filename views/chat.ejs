@@ -41,11 +41,13 @@
 
                 <div class="col-9 p-0">
                     <div class="chat-room">
+
                         <ul class="list-group chat-content">
                             <li><span class="chat-box">채팅방1 내용</span></li>
                             <li><span class="chat-box">채팅방1 내용</span></li>
                             <li><span class="chat-box mine">채팅방1 내용</span></li>
                         </ul>
+
                         <div class="input-group">
                             <input class="form-control" id="chat-input">
                             <button class="btn btn-secondary" id="send">전송</button>
@@ -100,11 +102,20 @@
             $('.list-group-item').click(function () {
                 $(this).css('background-color', '#eee');
                 지금누른채팅방id = $(this).attr('data-id');
+                $('.chat-content').html(''); //html 비우기
+
+                if(eventSource != undefined) {
+                    eventSource.close() //소통채널 나가기
+                }
 
                 //유저가 데이터수신은 new EventSource('/경로')
                 eventSource = new EventSource('/message/' + 지금누른채팅방id);
-                eventSource.addEventListener('test', function(e){
-                    console.log(JSON.parse(e.data));
+                eventSource.addEventListener('test', function(e){ //서버가 보낸거 수신하고 싶으면 작성
+                    // console.log(JSON.parse(e.data)); //서버가 응답해줄 떄 마다 실행 되는 코드
+                    var 가져온거 = JSON.parse(e.data);
+                    가져온거.forEach(function(i){
+                        $('.chat-content').append('<li><span class="chat-box">' + i.content + '</span></li>') //html추가하는 법임
+                    });
                 })
             });
 

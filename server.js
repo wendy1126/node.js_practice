@@ -417,7 +417,7 @@ app.post("/message", 로그인했니, function (요청, 응답) {
 });
 
 //서버와 유저간 실시간 소통채널 열기
-app.get("/message/:parentid", 로그인했니, function (요청, 응답) {
+app.get("/message/:id", 로그인했니, function (요청, 응답) {
   //Header를 수정해주세요; 이제 get경로로 요청하면 실시간 채널 오픈됨
   //GET,POST는 HTTP요청이라고 부름, HTTP요청 시 몰래 전송되는 정보들도 있음(유저의언어,쿠키,브라우저정보 등등 이런정보는 header라는 공간에 담겨있음)
   //서버->유저로 전달되는 Header를 아래와 같이 바꾸면 실시간 채널 개설됨
@@ -435,4 +435,14 @@ app.get("/message/:parentid", 로그인했니, function (요청, 응답) {
       응답.write("event: test\n"); //유저에게 데이터전송은 event:보낼데이터이름\n
       응답.write("data: " + JSON.stringify(결과) + "\n\n"); //data:보낼데이터\n\n
     });
+
+  //Change Stream 설정법(문법임)
+  const pipeline = [{ $match: { "fullDocument.parent": 요청.params.id } }]; //collection 안의 원하는 document만 감시하고 싶으면 쿼리문 적으면 됨
+  const collection = db.collection("message"); //collection 정하고,
+  const changeStream = collection.watch(pipeline); //.watch() 함수 붙이면 실시간 감시해줌
+  changeStream.on("change", (result) => {
+    //해당 컬렉션에 변동 생기면 여기 코드 실행됨
+    응답.write("event: test\n");
+    응답.write("data: " + JSON.stringify([result.fullDocument]) + "\n\n");
+  });
 });
