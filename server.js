@@ -12,6 +12,9 @@ const session = require("express-session"); //session방식 로그인 기능 구
 require("dotenv").config(); //환경변수 사용을 위한 라이브러리
 let multer = require("multer"); //파일전송한 것을 저장/분석 등 쉽게 하기 위한 라이브러리
 const { ObjectId } = require("mongodb");
+const http = require("http").createServer(app); //socket.io 셋팅
+const { Server } = require("socket.io"); //socket.io 셋팅
+const io = new Server(http); //socket.io 셋팅
 
 var storage = multer.diskStorage({
   //업로드한 이미지를 어디로 보낼지 폴더 경로 정의하는 부분
@@ -63,7 +66,9 @@ MongoClient.connect(
     //   }
     // );
 
-    app.listen(process.env.PORT, function () {
+    http.listen(process.env.PORT, function () {
+      //웹소켓 쓰기 위해서 app.listen을 http.listen으로 바꿈
+      //사실 app로 적든 http로 적든 같은 기능이라 상관없음
       console.log("listening on 8080");
     });
   }
@@ -417,6 +422,7 @@ app.post("/message", 로그인했니, function (요청, 응답) {
 });
 
 //서버와 유저간 실시간 소통채널 열기
+//Server Sent Event: 서버->유저 일방적 통신가능
 app.get("/message/:id", 로그인했니, function (요청, 응답) {
   //Header를 수정해주세요; 이제 get경로로 요청하면 실시간 채널 오픈됨
   //GET,POST는 HTTP요청이라고 부름, HTTP요청 시 몰래 전송되는 정보들도 있음(유저의언어,쿠키,브라우저정보 등등 이런정보는 header라는 공간에 담겨있음)
@@ -444,5 +450,22 @@ app.get("/message/:id", 로그인했니, function (요청, 응답) {
     //해당 컬렉션에 변동 생기면 여기 코드 실행됨
     응답.write("event: test\n");
     응답.write("data: " + JSON.stringify([result.fullDocument]) + "\n\n");
+  });
+});
+
+//WebSocket :양방향 통신가능
+//웹소켓 쓰려면 socket.io 라이브러리 사용
+// /socket접속하면 socket.ejs페이지 보여줌
+app.get("/socket", function (요청, 응답) {
+  응답.render("socket.ejs");
+});
+
+//웹소켓에 접속시 내부 코드 실행하도록 함
+io.on("connection", function (socket) {
+  console.log("유저접속됨");
+  //누가 'user-send'이름으로 메세지 보내면, 내부 코드 실행하도록 함
+  socket.on("user-send", function (data) {
+    //data는 유저가 보낸 메세지
+    console.log(data);
   });
 });
