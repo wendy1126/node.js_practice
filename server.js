@@ -463,11 +463,25 @@ app.get("/socket", function (요청, 응답) {
 //웹소켓에 접속시 내부 코드 실행하도록 함
 io.on("connection", function (socket) {
   console.log("유저접속됨");
+  // console.log(socket.id); //유저 아이디 확인용
+
+  //서버가 room1-send 이름의 메세지 받으면 실행할 코드
+  socket.on("room1-send", function (data) {
+    io.to("room1").emit("broadcast", data); //room1에만 broadcast해줌
+  });
+
+  //서버가 joinroom이름의 메세지 받으면 실행할 코드
+  socket.on("joinroom", function (data) {
+    socket.join("room1"); //채팅방 만들고, 입장시키기 위한 코드
+  });
+
   //유저가 서버에게 'user-send'이름으로 메세지 보내면(서버가 수신하면), 내부 코드 실행하도록 함
   socket.on("user-send", function (data) {
     //data는 유저가 보낸 메세지
     console.log(data);
     //서버가 유저에게 메세지 전송하는 방법
     io.emit("broadcast", data); //io.emit()특징은 모든 유저에게 메세지 보내줌(접속자간 단체 채팅방에 유용)
+    //단체 채팅이 아니라, 서버-유저 1명간 단독으로 소통하고싶을때엔
+    // io.to(socket.id).emit("broadcast", data);
   });
 });
