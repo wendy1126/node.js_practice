@@ -11,6 +11,7 @@ const LocalStrategy = require("passport-local").Strategy; //session방식 로그
 const session = require("express-session"); //session방식 로그인 기능 구현하기 위한 라이브러리3
 require("dotenv").config(); //환경변수 사용을 위한 라이브러리
 let multer = require("multer"); //파일전송한 것을 저장/분석 등 쉽게 하기 위한 라이브러리
+const { ObjectId } = require("mongodb");
 
 var storage = multer.diskStorage({
   //업로드한 이미지를 어디로 보낼지 폴더 경로 정의하는 부분
@@ -369,4 +370,69 @@ app.post("/upload", upload.single("profile"), function (요청, 응답) {
 //업로드한 이미지 보여주기
 app.get("/image/:imageName", function (요청, 응답) {
   응답.sendFile(__dirname + "/public/image/" + 요청.params.imageName); //__dirname=현재파일경로(server.js)
+});
+
+//채팅 요청
+app.post("/chatroom", 로그인했니, function (요청, 응답) {
+  var 저장할거 = {
+    title: "무슨무슨채팅방",
+    member: [ObjectId(요청.body.채팅당한사람id), 요청.user._id],
+    date: new Date(),
+  };
+  db.collection("chatroom")
+    .insertOne(저장할거)
+    .then((결과) => {
+      //콜백함수 대신 .then 써도 됨
+      응답.send("채팅걸기 성공");
+    });
+});
+
+// /chat접속 시 chat.ejs 보여주기
+app.get("/chat", 로그인했니, function (요청, 응답) {
+  db.collection("chatroom")
+    .find({ member: 요청.user._id })
+    .toArray()
+    .then((결과) => {
+      응답.render("chat.ejs", { data: 결과 });
+    });
+});
+
+//메세지 DB에 저장하기
+app.post("/message", 로그인했니, function (요청, 응답) {
+  var 저장할거 = {
+    parent: 요청.body.parent,
+    content: 요청.body.content,
+    userid: 요청.user._id,
+    date: new Date(),
+  };
+  db.collection("message")
+    .insertOne(저장할거)
+    .then((결과) => {
+      // console.log("DB저장성공");
+      응답.send(결과);
+    });
+  // .catch(() => {
+  //   console.log("DB저장실패");
+  // });
+});
+
+//서버와 유저간 실시간 소통채널 열기
+app.get("/message/:parentid", 로그인했니, function (요청, 응답) {
+  //Header를 수정해주세요; 이제 get경로로 요청하면 실시간 채널 오픈됨
+  //GET,POST는 HTTP요청이라고 부름, HTTP요청 시 몰래 전송되는 정보들도 있음(유저의언어,쿠키,브라우저정보 등등 이런정보는 header라는 공간에 담겨있음)
+  //서버->유저로 전달되는 Header를 아래와 같이 바꾸면 실시간 채널 개설됨
+  응답.writeHead(200, {
+    Connection: "keep-alive",
+    "Content-Type": "text/event-stream",
+    "Cache-Control": "no-cache",
+  });
+
+  db.collection("message")
+    .find({ parent: 요청.params.id })
+    .toArray()
+    .then((결과) => {
+      //일반 GET,POST 요청은 1회 요청시 1회 응답만 가능하지만, Header를 위와같이 수정하면 여러번 응답가능
+      응답.write("event: test\n"); //유저에게 데이터전송은 event:보낼데이터이름\n
+      응답.write("data: " + JSON.stringify(결과) + "\n\n"); //data:보낼데이터\n\n
+    });
 });
